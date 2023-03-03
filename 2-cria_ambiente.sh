@@ -1,21 +1,21 @@
-##Criar uma rede no Docker:
-#Para criar uma rede no Docker, você pode usar o seguinte comando:
+## Criar uma rede no Docker:
+# Para criar uma rede no Docker, você pode usar o seguinte comando:
 
 
 docker network create nome_da_rede
 
-##Sugestão de nome para a rede: lab_redesec
+## Sugestão de nome para a rede: lab_redesec
 
-###Criar uma máquina para o WordPress vulnerável:
-###Para criar uma máquina com WordPress vulnerável, você pode usar o seguinte comando:
+### Criar uma máquina para o WordPress vulnerável:
+### Para criar uma máquina com WordPress vulnerável, você pode usar o seguinte comando:
 
 
 
 docker run -d -p 8080:80 --name wp_vulneravel --network nome_da_rede vulneravel/wordpress
-Sugestão de nome para a máquina: wp_vulneravel
+### Sugestão de nome para a máquina: wp_vulneravel
 
-##Configurar o OpenVAS:
-###Para configurar o OpenVAS, você pode usar o seguinte comando:
+## Configurar o OpenVAS:
+### Para configurar o OpenVAS, você pode usar o seguinte comando:
 
 docker run -d -p 443:443 -p 9390:9390 --name openvas --network nome_da_rede mikesplain/openvas
 
