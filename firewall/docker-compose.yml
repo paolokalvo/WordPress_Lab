@@ -1,0 +1,77 @@
+version: '3'
+services:
+  dns:
+    image: tutum/dns
+    networks:
+      - lab_net
+    hostname: dns
+    container_name: dns
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    environment:
+      DNS_DOMAIN: lab.local
+      DNS_FORWARDERS: 8.8.8.8
+
+  web:
+    image: nginx
+    networks:
+      - lab_net
+    hostname: web
+    container_name: web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./web:/usr/share/nginx/html
+
+  firewall:
+    image: paloaltonetworks/paloalto-vm-series:latest
+    networks:
+      - lab_net
+    hostname: firewall
+    container_name: firewall
+    ports:
+      - "22:22"
+      - "443:443"
+    environment:
+      PALOALTO_KEY: "CHANGEME"
+      PALOALTO_IP: "192.168.201.100"
+      PALOALTO_MASK: "255.255.255.0"
+      PALOALTO_GW: "192.168.201.1"
+
+  zabbix:
+    image: zabbix/zabbix-server-mysql:latest
+    networks:
+      - lab_net
+    hostname: zabbix
+    container_name: zabbix
+    ports:
+      - "80:80"
+      - "10051:10051"
+    environment:
+      DB_SERVER_HOST: zabbix-db
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_DATABASE: zabbix
+
+  zabbix-db:
+    image: mysql:latest
+    networks:
+      - lab_net
+    hostname: zabbix-db
+    container_name: zabbix-db
+    environment:
+      MYSQL_ROOT_PASSWORD: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_DATABASE: zabbix
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+networks:
+  lab_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.201.0/24
