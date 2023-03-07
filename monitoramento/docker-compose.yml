@@ -1,0 +1,64 @@
+version: '3'
+services:
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:latest
+    ports:
+      - "10051:10051"
+    environment:
+      - DB_SERVER_HOST=zabbix-db
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_DATABASE=zabbix
+    volumes:
+      - ./zabbix-server/data:/var/lib/mysql
+      - ./zabbix-server/logs:/var/log/zabbix
+    restart: unless-stopped
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:latest
+    ports:
+      - "80:80"
+    environment:
+      - DB_SERVER_HOST=zabbix-db
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_DATABASE=zabbix
+      - ZBX_SERVER_HOST=zabbix-server
+      - PHP_TZ=America/Sao_Paulo
+    restart: unless-stopped
+  zabbix-agent:
+    image: zabbix/zabbix-agent:latest
+    environment:
+      - ZBX_HOSTNAME=zabbix-agent
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_METADATA="docker-compose:zabbix-agent"
+    restart: unless-stopped
+    network_mode: "host"
+  zabbix-db:
+    image: mysql:latest
+    environment:
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_DATABASE=zabbix
+    volumes:
+      - ./zabbix-db/data:/var/lib/mysql
+    restart: unless-stopped
+  monitoring:
+    image: prom/node-exporter:v1.2.2
+    restart: unless-stopped
+    network_mode: "host"
+  firewall:
+    image: alpine:latest
+    command: tail -f /dev/null
+    restart: unless-stopped
+  dns:
+    image: alpine:latest
+    command: tail -f /dev/null
+    restart: unless-stopped
+  web-server:
+    image: nginx:latest
+    command: tail -f /dev/null
+    restart: unless-stopped
+  ansible:
+    image: ansible/ansible-runner:latest
+    command: tail -f /dev/null
+    restart: unless-stopped
