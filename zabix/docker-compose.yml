@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+
+  dns:
+    image: ubuntu:latest
+    command: /bin/bash -c "while true; do sleep 3600; done"
+    networks:
+      - videoconf
+
+  firewall:
+    image: ubuntu:latest
+    command: /bin/bash -c "while true; do sleep 3600; done"
+    networks:
+      - videoconf
+
+  web-server:
+    image: ubuntu:latest
+    command: /bin/bash -c "while true; do sleep 3600; done"
+    networks:
+      - videoconf
+    ports:
+      - "80:80"
+
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:latest
+    environment:
+      - DB_SERVER_HOST=mysql-server
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+    networks:
+      - videoconf
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:latest
+    environment:
+      - DB_SERVER_HOST=mysql-server
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - ZBX_SERVER_HOST=zabbix-server
+    ports:
+      - "8080:80"
+    networks:
+      - videoconf
+
+  mysql-server:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - videoconf
+
+networks:
+  videoconf:
+    driver: bridge
